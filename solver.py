@@ -8,7 +8,11 @@ def hallar_puntos_criticos(formula_texto):
     # 1. Gradiente
     gradiente = [sp.diff(f, var) for var in variables]
     grad_dict = {f"df/d{var}": g for var, g in zip(variables, gradiente)}
-    
+    puntos_crudos = sp.solve(gradiente, variables, dict=True)
+
+    puntos_limpios = []
+    puntos_reales_calc = []
+
     # 2. Segundas derivadas
     derivadas_segundas = {}
     for i in range(n):
@@ -22,17 +26,18 @@ def hallar_puntos_criticos(formula_texto):
     puntos_limpios = []
     
     for p in puntos_crudos:
-        # Convertimos coordenadas a números flotantes
-        punto_str = {str(k): float(v) if v.is_real else v for k, v in p.items()}
         
-        # --- LÍNEA CLAVE: EVALUAR f(P) ---
-        # Sustituimos el punto en la función original y redondeamos
-        valor_f = float(f.subs(p))
-        punto_str["f_objetivo"] = round(valor_f, 4)
-        # ---------------------------------
-        
-        puntos_limpios.append(punto_str)
+        if all(val.is_real for val in p.values()):
+            punto_str = {str(k): float(v) if v.is_real else v for k, v in p.items()}
+            
+            # --- LÍNEA CLAVE: EVALUAR f(P) ---
+            # Sustituimos el punto en la función original y redondeamos
+            valor_f = float(f.subs(p))
+            punto_str["f_objetivo"] = round(valor_f, 4)
+            # ---------------------------------
+            puntos_limpios.append(punto_str)
+            puntos_reales_calc.append(p)
     
     hessiana_sym = sp.hessian(f, variables)
     
-    return puntos_limpios, puntos_crudos, hessiana_sym, variables, grad_dict, derivadas_segundas
+    return puntos_limpios, puntos_reales_calc, hessiana_sym, variables, grad_dict, derivadas_segundas

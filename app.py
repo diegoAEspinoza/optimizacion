@@ -23,7 +23,7 @@ st.divider()
 
 with st.sidebar:
     st.header("Configuración")
-    formula_input = st.text_input("Función f(x, y, ...):", "6*x + 8*y - x**2 - y**2 - x*y")
+    formula_input = st.text_input("Función f(x, y, ...):", "x**3 + y**3 - 3*x*y")
     st.caption("Ejemplo: x**3 + y**3 - 3*x*y")
 
 
