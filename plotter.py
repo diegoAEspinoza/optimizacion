@@ -1,12 +1,31 @@
+#plotter.py
 import numpy as np
 import plotly.graph_objects as go
 
-def generar_grafico(f_num, constraints, p_opt, z_opt, limite_x, limite_y, resolucion):
+def generar_grafico(f_num, constraints, p_opt, z_opt, limite_x, limite_y, resolucion, vertices_factibles):
     x_v = np.linspace(0, limite_x, resolucion)
     y_v = np.linspace(0, limite_y, resolucion)
     X, Y = np.meshgrid(x_v, y_v)
     
     fig = go.Figure()
+
+    if vertices_factibles and len(vertices_factibles) > 2:
+        # Extraemos X e Y de los vértices
+        v_x = [v[0] for v in vertices_factibles]
+        v_y = [v[1] for v in vertices_factibles]
+        
+        # Cerramos el polígono volviendo al primer punto
+        v_x.append(v_x[0])
+        v_y.append(v_y[0])
+        
+        fig.add_trace(go.Scatter(
+            x=v_x, y=v_y, 
+            fill="toself", 
+            fillcolor='rgba(0, 255, 0, 0.2)', # Verde suave transparente
+            line=dict(color='rgba(255,255,255,0)'),
+            name="Región Factible",
+            showlegend=True
+        ))
 
     # Dibujar restricciones
     for i, r in enumerate(constraints):
@@ -27,7 +46,7 @@ def generar_grafico(f_num, constraints, p_opt, z_opt, limite_x, limite_y, resolu
     # Dibujar el punto óptimo
     if p_opt is not None:
         fig.add_trace(go.Scatter(x=[p_opt[0]], y=[p_opt[1]], mode='markers+text',
-                                 text=[f"ÓPTIMO: {z_opt:,.0f}"], textposition="top center",
+                                 text=[f"ÓPTIMO"], textposition="top center",
                                  marker=dict(size=15, color='red', symbol='star'), name="Óptimo"))
 
     fig.update_layout(
